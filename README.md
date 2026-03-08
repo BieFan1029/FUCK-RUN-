@@ -5,6 +5,7 @@
 [![LSPosed](https://img.shields.io/badge/LSPosed-Required-red.svg)](https://github.com/LSPosed/LSPosed)
 
 **RunHook** 是一款基于 LSPosed 框架的开源 Android 传感器仿真插件，专为 **Android 开发者调试与压力测试** 设计。它通过 Hook 系统底层传感器分发机制，模拟真实的步频数据流与运动加速度波形。
+<img width="500" height="500" alt="logo" src="https://github.com/user-attachments/assets/c7731544-190c-4cfb-80cd-16edc7777233" />
 
 ---
 
