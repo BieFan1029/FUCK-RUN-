@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="xposedscope">
+        <item>android</item>
+        <item>co.runner.app</item>
+        <item>com.heytap.health</item>
+        <item>com.gotokeep.keep</item>
+        <item>com.android.healthconnect.controller</item>
+    </string-array>
+</resources>

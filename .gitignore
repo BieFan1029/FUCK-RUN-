@@ -1,0 +1,39 @@
+# 1. Android Studio 和 Gradle 生成的临时编译垃圾（必须忽略，否则仓库极大）
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# 2. 模块下的临时编译文件
+/app/build/
+/app/release/
+/app/debug/
+
+# 3. 极其重要的安全绝密文件（绝对不能传上 GitHub！）
+# 你的打包签名密钥
+*.jks
+*.keystore
+# 如果你把密码写在了单独的属性文件里
+keystore.properties
+# 如果有包含敏感接口或密码的本地配置
+secrets.properties
+
+# 4. 运行和日志产生的临时文件
+*.log
+*.apk
+*.ap_
+*.aab
+
+# 5. NDK/C++ 相关的缓存（如果你以后用到了的话）
+/app/.cxx/
