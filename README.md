@@ -44,3 +44,4 @@ P.S
 
 ---
 **Developer:** [uy-li](https://github.com/uy-li)
+[T3Rhetto827](https://github.com/T3Rhetto827)
