@@ -29,6 +29,7 @@ public class JoyrunHook implements IXposedHookLoadPackage {
     private static boolean isModifyCadence = true;
     private static long mockStartTime = 0; // 用于计算平滑正弦波的起点时间
     private static float baseStepOffset = -1f; // 记录第一次拦截到的真实步数
+    private static int lastLoggedSec = -1; // 上次打印日志的秒数（避免刷屏）
     
     // 动态步频配置
     private static float minCadenceConfig = 172f;
@@ -47,7 +48,9 @@ public class JoyrunHook implements IXposedHookLoadPackage {
             !"android".equals(pkg) && 
             !"com.heytap.health".equals(pkg) && 
             !"com.oplus.healthservice".equals(pkg) &&
-            !"com.oplus.pedometer".equals(pkg)) {
+            !"com.oplus.pedometer".equals(pkg) &&
+            !"com.huachenjie.shandong_school".equals(pkg) &&
+            !"com.huachenjie.shandong_school_pro".equals(pkg)) {
             return;
         }
 
@@ -195,27 +198,29 @@ public class JoyrunHook implements IXposedHookLoadPackage {
 
                             if (type == Sensor.TYPE_ACCELEROMETER && event.values.length >= 3) {
                                 // 物理仿真计算：振幅微调，符合真实跑步
-                                float zWave = 9.81f + (float) (Math.sin(elapsedSecs * Math.PI * 2 * freq) * 3.5f); // 降到 3.5f
-                                float yWave = (float) (Math.cos(elapsedSecs * Math.PI * 2 * freq) * 1.5f); // 摆臂降到 1.5f
+                                float zWave = 9.81f + (float) (Math.sin(elapsedSecs * Math.PI * 2 * freq) * 3.5f);
+                                float yWave = (float) (Math.cos(elapsedSecs * Math.PI * 2 * freq) * 1.5f);
                                 
-                                // 加入极小的随机抖动让曲线更真实
-                                float jitterY = (float) (Math.random() * 0.4f - 0.2f);
-                                float jitterZ = (float) (Math.random() * 0.4f - 0.2f);
+                                float jitterY = (float) (Math.random() * 0.3f - 0.15f);
+                                float jitterZ = (float) (Math.random() * 0.3f - 0.15f);
                                 
-                                // 直接在事件底层数据里掉包
                                 event.values[0] = 0.0f;
                                 event.values[1] = yWave + jitterY;
                                 event.values[2] = zWave + jitterZ;
+                                
+                                // 每秒打印一次加速度日志（避免刷屏）
+                                if ((int)elapsedSecs != lastLoggedSec) {
+                                    lastLoggedSec = (int)elapsedSecs;
+                                    XposedBridge.log("JoyrunHook: 加速度伪造中 t=" + (int)elapsedSecs + "s, z=" + String.format("%.2f", zWave) + ", 步频=" + (int)currentCadence);
+                                }
 
                             } else if ((type == Sensor.TYPE_STEP_COUNTER || type == 19) && event.values.length >= 1) {
                                 // 计步器修改
                                 if (baseStepOffset < 0) {
-                                    // 记录第一次拦截到的真实系统步数作为基数
                                     baseStepOffset = event.values[0];
                                     XposedBridge.log("JoyrunHook: 捕获到初始步数基准 baseStepOffset = " + baseStepOffset);
                                 }
                                 
-                                // 模拟步数 = 初始步数 + (从开启到现在经过的秒数 * 步频 / 60)
                                 float currentFakeSteps = baseStepOffset + (elapsedSecs * freq);
                                 event.values[0] = currentFakeSteps;
 

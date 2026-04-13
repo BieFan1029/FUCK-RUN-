@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">步频引擎</string>
+    <string name="app_description">RunHook 步频引擎 - LSPosed 传感器仿真模块\n\n原作者: uy-li\nGitHub: https://github.com/uy-li/runhook\n\n二改: BieFan - 适配闪动校园</string>
 </resources>
