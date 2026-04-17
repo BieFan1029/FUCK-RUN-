@@ -70,6 +70,13 @@ public class MainActivity extends AppCompatActivity {
         // 绑定按钮事件
         MaterialButton btnStart = findViewById(R.id.btn_start);
         btnStart.setOnClickListener(v -> checkOverlayPermissionAndStart());
+
+        // 适配应用按钮
+        MaterialButton btnApps = findViewById(R.id.btn_apps);
+        btnApps.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AppsActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void checkOverlayPermissionAndStart() {

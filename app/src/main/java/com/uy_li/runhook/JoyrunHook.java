@@ -44,13 +44,20 @@ public class JoyrunHook implements IXposedHookLoadPackage {
         String pkg = lpparam.packageName;
         
         // 扩大作用域拦截：覆盖悦跑圈、系统框架以及一加/OPPO 健康服务和计步服务
+        // 以及校园跑步 App：闪动校园、体适能、运动世界校园、宥马运动
         if (!"co.runner.app".equals(pkg) && 
             !"android".equals(pkg) && 
             !"com.heytap.health".equals(pkg) && 
             !"com.oplus.healthservice".equals(pkg) &&
             !"com.oplus.pedometer".equals(pkg) &&
             !"com.huachenjie.shandong_school".equals(pkg) &&
-            !"com.huachenjie.shandong_school_pro".equals(pkg)) {
+            !"com.huachenjie.shandong_school_pro".equals(pkg) &&
+            // 体适能
+            !"com.bxkj.student".equals(pkg) &&
+            // 运动世界校园
+            !"com.zjwh.android_wh_physicalfitness".equals(pkg) &&
+            // 宥马运动
+            !"android.youma.com".equals(pkg)) {
             return;
         }
 

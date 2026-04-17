@@ -17,7 +17,7 @@
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="步频引擎"
+            android:text="FUCK-RUN"
             android:textAppearance="?attr/textAppearanceHeadlineLarge"
             android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent"
@@ -31,12 +31,19 @@
             android:text="原作者: uy-li | 二改: BieFan"
             android:textAppearance="?attr/textAppearanceBodySmall"
             android:textColor="?android:attr/textColorSecondary"
+            app:layout_constraintTop_toBottomOf="@id/tv_title"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="4dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_apps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="适配应用"
+            style="@style/Widget.Material3.Button.TonalButton"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp"
-            android:padding="8dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true" />
+            android:layout_marginTop="16dp" />
 
         <TextView
             android:id="@+id/tv_subtitle"
@@ -45,7 +52,7 @@
             android:text="自定义您的跑步频率区间"
             android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textColor="?android:attr/textColorSecondary"
-            app:layout_constraintTop_toBottomOf="@id/tv_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_author"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="8dp" />
 

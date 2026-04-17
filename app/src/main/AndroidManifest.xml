@@ -39,6 +39,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".AppsActivity"
+            android:exported="false" />
+
         <service
             android:name=".FloatingService"
             android:exported="false" />
