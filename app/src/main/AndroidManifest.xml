@@ -12,19 +12,19 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.JoyrunHook">
+        android:theme="@style/Theme.RunHook">
 
         <meta-data
             android:name="xposedmodule"
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="步频修改模块" />
+            android:value="FuckRun - 步频模拟·通用版" />
         <meta-data
             android:name="xposedminversion"
             android:value="82" />
 
-        <!-- 引用资源文件中的数组作为作用域，解决 LSPosed 作用域无法自动推荐的 Bug -->
+        <!-- 作用域：留空让用户自行选择 -->
         <meta-data
             android:name="xposedscope"
             android:resource="@array/xposedscope" />
@@ -34,13 +34,12 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name=".AppsActivity"
+            android:name=".HelpActivity"
             android:exported="false" />
 
         <service

@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         rangeSlider.addOnChangeListener((slider, value, fromUser) -> {
             float min = slider.getValues().get(0);
             float max = slider.getValues().get(1);
-            tvSliderValue.setText((int) min + " - " + (int) max);
+            tvSliderValue.setText((int) min + " - " + (int) max + " 步/分钟");
             
             // 实时保存到 SharedPreferences
             sharedPrefs.edit()
@@ -51,91 +51,78 @@ public class MainActivity extends AppCompatActivity {
                     .apply();
         });
 
-        // 注册现代的 ActivityResultCallback 处理悬浮窗授权回调
+        // 注册悬浮窗授权回调
         overlayPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (Settings.canDrawOverlays(this)) {
-                            // 授权成功
                             startFloatingServiceAndFinish();
                         } else {
-                            // 拒绝授权
-                            Toast.makeText(this, "需要悬浮窗权限才能显示控制按钮", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "需要悬浮窗权限", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
         );
 
-        // 绑定按钮事件
+        // 启动按钮
         MaterialButton btnStart = findViewById(R.id.btn_start);
         btnStart.setOnClickListener(v -> checkOverlayPermissionAndStart());
 
-        // 适配应用按钮
-        MaterialButton btnApps = findViewById(R.id.btn_apps);
-        btnApps.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AppsActivity.class);
+        // 使用说明按钮
+        MaterialButton btnHelp = findViewById(R.id.btn_help);
+        btnHelp.setOnClickListener(v -> {
+            Intent intent = new Intent(this, HelpActivity.class);
             startActivity(intent);
         });
     }
 
     private void checkOverlayPermissionAndStart() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // 第一步：检查是否已经有权限
             if (Settings.canDrawOverlays(this)) {
                 startFloatingServiceAndFinish();
                 return;
             }
 
-            // 第二步：尝试通过 Root 静默授权
+            // 尝试 Root 静默授权
             boolean rootGranted = grantOverlayPermissionViaRoot();
             
             if (rootGranted) {
                 try {
-                    // 第三步：等待 300ms 让系统状态刷新
                     Thread.sleep(300);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 
-                // 再次检查权限
                 if (Settings.canDrawOverlays(this)) {
-                    Toast.makeText(this, "已通过 Root 自动授予悬浮窗权限", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "已自动授予悬浮窗权限", Toast.LENGTH_SHORT).show();
                     startFloatingServiceAndFinish();
                     return;
                 }
             }
 
-            // 第四步：优雅降级，跳转到系统设置页面手动授权
-            Toast.makeText(this, "Root 授权失败，请手动开启悬浮窗", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "请手动开启悬浮窗权限", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:" + getPackageName()));
             overlayPermissionLauncher.launch(intent);
             
         } else {
-            // Android 6.0 以下默认拥有悬浮窗权限
             startFloatingServiceAndFinish();
         }
     }
 
-    /**
-     * 尝试通过 Root 执行 appops 命令静默授予悬浮窗权限
-     */
     private boolean grantOverlayPermissionViaRoot() {
         Process process = null;
         DataOutputStream os = null;
         try {
-            // 请求 Root 权限
             process = Runtime.getRuntime().exec("su");
             os = new DataOutputStream(process.getOutputStream());
             
-            // 执行 appops 提权命令
             String command = "appops set " + getPackageName() + " SYSTEM_ALERT_WINDOW allow\n";
             os.writeBytes(command);
             os.writeBytes("exit\n");
             os.flush();
             
-            // 等待命令执行完毕并获取退出状态码
             int exitValue = process.waitFor();
             return exitValue == 0;
             
@@ -144,12 +131,8 @@ public class MainActivity extends AppCompatActivity {
             return false;
         } finally {
             try {
-                if (os != null) {
-                    os.close();
-                }
-                if (process != null) {
-                    process.destroy();
-                }
+                if (os != null) os.close();
+                if (process != null) process.destroy();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -159,8 +142,7 @@ public class MainActivity extends AppCompatActivity {
     private void startFloatingServiceAndFinish() {
         Intent intent = new Intent(this, FloatingService.class);
         startService(intent);
-        Toast.makeText(this, "悬浮窗已开启", Toast.LENGTH_SHORT).show();
-        // 启动完毕后调用 moveTaskToBack(true) 将程序退到后台而不是直接销毁，保留界面状态
+        Toast.makeText(this, "悬浮窗已启动", Toast.LENGTH_SHORT).show();
         moveTaskToBack(true);
     }
 }

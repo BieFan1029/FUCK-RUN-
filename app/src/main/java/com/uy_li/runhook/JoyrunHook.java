@@ -42,26 +42,26 @@ public class JoyrunHook implements IXposedHookLoadPackage {
     @Override
     public void handleLoadPackage(final LoadPackageParam lpparam) throws Throwable {
         String pkg = lpparam.packageName;
-        
-        // 扩大作用域拦截：覆盖悦跑圈、系统框架以及一加/OPPO 健康服务和计步服务
-        // 以及校园跑步 App：闪动校园、体适能、运动世界校园、宥马运动
-        if (!"co.runner.app".equals(pkg) && 
-            !"android".equals(pkg) && 
-            !"com.heytap.health".equals(pkg) && 
-            !"com.oplus.healthservice".equals(pkg) &&
-            !"com.oplus.pedometer".equals(pkg) &&
-            !"com.huachenjie.shandong_school".equals(pkg) &&
-            !"com.huachenjie.shandong_school_pro".equals(pkg) &&
-            // 体适能
-            !"com.bxkj.student".equals(pkg) &&
-            // 运动世界校园
-            !"com.zjwh.android_wh_physicalfitness".equals(pkg) &&
-            // 宥马运动
-            !"android.youma.com".equals(pkg)) {
-            return;
+
+        // 排除列表：不应该被 Hook 的包名
+        // - 模块自身
+        // - 系统 UI
+        // - 常见的系统组件
+        String[] excludePackages = {
+            "com.uy_li.runhook",      // 模块自身
+            "com.android.systemui",   // 系统 UI
+            "com.android.launcher",   // 桌面
+            "com.android.settings",   // 设置
+            "com.android.packageinstaller", // 安装器
+        };
+
+        for (String exclude : excludePackages) {
+            if (exclude.equals(pkg)) {
+                return;
+            }
         }
 
-        XposedBridge.log("JoyrunHook loaded for package: " + pkg);
+        XposedBridge.log("JoyrunHook loaded for package: " + pkg + " (LSPosed 作用域模式)");
 
         // ==========================================
         // 1. 悬浮窗广播控制开关
@@ -96,8 +96,8 @@ public class JoyrunHook implements IXposedHookLoadPackage {
                                 }
                                 
                                 String statusMsg = isModifyCadence ? ("已开启 (范围 " + (int)minCadenceConfig + "-" + (int)maxCadenceConfig + ")") : "已关闭";
-                                Toast.makeText(context, "万能接口拦截(一加专版) " + statusMsg, Toast.LENGTH_SHORT).show();
-                                XposedBridge.log("JoyrunHook: " + pkg + " 收到广播，万能接口拦截 " + statusMsg);
+                                Toast.makeText(context, "FuckRun " + statusMsg, Toast.LENGTH_SHORT).show();
+                                XposedBridge.log("JoyrunHook: " + pkg + " 收到广播，步频模拟 " + statusMsg);
                             }
                         }
                     };

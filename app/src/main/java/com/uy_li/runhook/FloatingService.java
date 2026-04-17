@@ -14,16 +14,31 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class FloatingService extends Service {
     private WindowManager windowManager;
     private View floatingView;
-    
-    // 明确定义工作状态变量
-    private boolean isWorking = true; // 默认与 Hook 类中保持一致开启
-    // 防抖动时间戳
+    private boolean isWorking = true;
     private long lastClickTime = 0;
+
+    // 主题色
+    private static final int COLOR_ON = Color.parseColor("#4A90D9");
+    private static final int COLOR_OFF = Color.parseColor("#90A4AE");
+
+    // 辅助方法：dp 转 px
+    private int dpToPx(int dp) {
+        return (int) TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_PX,
+            dp * getResources().getDisplayMetrics().density,
+            getResources().getDisplayMetrics()
+        );
+    }
+
+    private int dpToPx2(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -36,19 +51,44 @@ public class FloatingService extends Service {
         super.onCreate();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-        // 创建悬浮按钮
-        Button button = new Button(this);
-        button.setText("步频\nON");
-        button.setTextColor(Color.WHITE);
-        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        
-        // 设置圆形背景
-        GradientDrawable shape = new GradientDrawable();
-        shape.setShape(GradientDrawable.OVAL);
-        shape.setColor(Color.parseColor("#4CAF50")); // 默认绿色
-        button.setBackground(shape);
+        // 创建悬浮窗容器 - 圆角半透明卡片风格
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.HORIZONTAL);
+        container.setGravity(Gravity.CENTER_VERTICAL);
 
-        // 悬浮窗参数配置
+        // 半透明毛玻璃背景
+        final GradientDrawable bgShape = new GradientDrawable();
+        int radius = dpToPx2(18);
+        bgShape.setCornerRadii(new float[]{
+            radius, radius, radius, radius,
+            radius, radius, radius, radius
+        });
+        bgShape.setColor(Color.argb(180, 74, 144, 217)); // #4A90D9 at 70% opacity
+        container.setBackground(bgShape);
+
+        container.setPadding(
+            dpToPx2(14),
+            dpToPx2(10),
+            dpToPx2(14),
+            dpToPx2(10)
+        );
+
+        // 图标文字
+        TextView tvIcon = new TextView(this);
+        tvIcon.setText("👟");
+        tvIcon.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        tvIcon.setTextColor(Color.WHITE);
+
+        // 状态文字
+        final TextView tvStatus = new TextView(this);
+        tvStatus.setText("ON");
+        tvStatus.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        tvStatus.setTextColor(Color.WHITE);
+        tvStatus.setPadding(dpToPx2(6), 0, 0, 0);
+
+        container.addView(tvIcon);
+        container.addView(tvStatus);
+
         int layoutFlag;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             layoutFlag = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
@@ -56,21 +96,19 @@ public class FloatingService extends Service {
             layoutFlag = WindowManager.LayoutParams.TYPE_PHONE;
         }
 
-        int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60, getResources().getDisplayMetrics());
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                size,
-                size,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
                 layoutFlag,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT
         );
 
         params.gravity = Gravity.TOP | Gravity.START;
-        params.x = 0;
-        params.y = 300; // 初始位置靠下一点，避免挡住顶部状态栏
+        params.x = 20;
+        params.y = 300;
 
-        // 拖动和点击事件处理
-        button.setOnTouchListener(new View.OnTouchListener() {
+        container.setOnTouchListener(new View.OnTouchListener() {
             private int initialX;
             private int initialY;
             private float initialTouchX;
@@ -86,44 +124,47 @@ public class FloatingService extends Service {
                         initialTouchX = event.getRawX();
                         initialTouchY = event.getRawY();
                         isClick = true;
+
+                        // 点击时加深背景
+                        bgShape.setColor(Color.argb(220, 74, 144, 217));
+                        container.setBackground(bgShape);
                         return true;
+
                     case MotionEvent.ACTION_MOVE:
                         int deltaX = (int) (event.getRawX() - initialTouchX);
                         int deltaY = (int) (event.getRawY() - initialTouchY);
-                        if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+                        if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
                             isClick = false;
                         }
                         params.x = initialX + deltaX;
                         params.y = initialY + deltaY;
                         windowManager.updateViewLayout(floatingView, params);
                         return true;
+
                     case MotionEvent.ACTION_UP:
                         if (isClick) {
-                            // 增加防抖动逻辑：500毫秒内只能点击一次
                             long currentTime = System.currentTimeMillis();
                             if (currentTime - lastClickTime < 500) {
                                 return true;
                             }
                             lastClickTime = currentTime;
 
-                            // 切换工作状态
                             isWorking = !isWorking;
-                            if (isWorking) {
-                                shape.setColor(Color.parseColor("#4CAF50")); // 绿色
-                                button.setText("步频\nON");
-                            } else {
-                                shape.setColor(Color.parseColor("#F44336")); // 红色
-                                button.setText("步频\nOFF");
-                            }
-                            // 必须重新设置背景才生效
-                            button.setBackground(shape);
-                            
-                            // 实时读取最新的用户配置步频
+
+                            int currentColor = isWorking ? COLOR_ON : COLOR_OFF;
+
+                            // 更新半透明背景
+                            bgShape.setColor(Color.argb(180,
+                                Color.red(currentColor), Color.green(currentColor), Color.blue(currentColor)));
+                            container.setBackground(bgShape);
+
+                            // 更新文字
+                            tvStatus.setText(isWorking ? "ON" : "OFF");
+
                             SharedPreferences sharedPrefs = getSharedPreferences("JoyrunConfig", MODE_PRIVATE);
                             float minCadence = sharedPrefs.getFloat("min_cadence", 172.0f);
                             float maxCadence = sharedPrefs.getFloat("max_cadence", 182.0f);
 
-                            // 发送精准状态的单次广播
                             Intent broadcastIntent = new Intent("com.uy_li.TOGGLE_CADENCE");
                             broadcastIntent.putExtra("STATE", isWorking);
                             broadcastIntent.putExtra("MIN_CADENCE", minCadence);
@@ -136,7 +177,7 @@ public class FloatingService extends Service {
             }
         });
 
-        floatingView = button;
+        floatingView = container;
         windowManager.addView(floatingView, params);
     }
 

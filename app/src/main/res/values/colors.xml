@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- 淡蓝主题色 -->
+    <color name="primary_blue">#4A90D9</color>
+    <color name="primary_blue_dark">#3A7BC8</color>
+    <color name="primary_blue_light">#7BB3E8</color>
+    <color name="background_blue">#F5F9FC</color>
+    <color name="card_white">#FFFFFF</color>
+    <color name="text_primary">#1A237E</color>
+    <color name="text_secondary">#5C6BC0</color>
+    <color name="text_hint">#9FA8DA</color>
+    <color name="switch_on">#4A90D9</color>
+    <color name="switch_off">#B0BEC5</color>
+    <color name="accent">#00BCD4</color>
 </resources>

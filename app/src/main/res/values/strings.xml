@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">FUCK-RUN</string>
-    <string name="app_description">FUCK-RUN - LSPosed 校园跑步传感器仿真模块\n\n原作者: uy-li\nGitHub: https://github.com/uy-li/runhook\n\n二改: BieFan\n支持: 闪动校园、体适能、运动世界校园、宥马运动</string>
+    <string name="app_name">步频模拟</string>
+    <string name="app_description">FuckRun - LSPosed 通用传感器仿真模块\n\n支持所有传感器计步类 App\n\n使用方法:\n1. 在 LSPosed 中勾选目标 App\n2. 重启手机\n3. 打开目标 App 开始使用</string>
 </resources>
